@@ -17,42 +17,60 @@ import com.google.gson.GsonBuilder;
 
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import glowredman.wherearetheores.WATO;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class ConfigHandler {
 
 	public static File configFile;
-	public static List<ConfigObject> config = new ArrayList<ConfigObject>();
+	public static Map<String, Map<String, List<String>>> config = new HashMap<String, Map<String, List<String>>>();
+	public static Map<Long, String> possibleItems = new HashMap<Long, String>();
 
 	public static void init(FMLPreInitializationEvent event) {
 		try {
 			configFile = new File(event.getModConfigurationDirectory().getPath() + "/NEI", WATO.MODID + ".json");
 			if (!configFile.exists()) {
-				List<ConfigObject> list = new ArrayList<ConfigObject>();
+				Map<String, Map<String, List<String>>> list = new HashMap<String, Map<String, List<String>>>();
 
-				list.add(new ConfigObject("oreGold", dimension("Overworld", 9, 2, 0, 31)));
-				list.add(new ConfigObject("oreIron", dimension("Overworld", 9, 20, 0, 63)));
-				list.add(new ConfigObject("oreCoal", dimension("Overworld", 17, 20, 0, 127)));
-				list.add(new ConfigObject("oreLapis", dimension("Overworld", Arrays.asList("Max Vein Size: 7",
-						"Attempts per Chunk: 1", "Y-Level: 0 to 30", "This Ore is normally distributed!"))));
-				list.add(new ConfigObject("oreDiamond", dimension("Overworld", 8, 1, 0, 15)));
-				list.add(new ConfigObject("oreRedstone", dimension("Overworld", 8, 8, 0, 15)));
-				list.add(new ConfigObject("oreEmerald", dimension("Overworld", Arrays.asList("Max Vein Size: 1",
-						"Attempts per Chunk: 3 to 9", "Y-Level: 4 - 31", "This Ore generates only in Hills!"))));
-				list.add(new ConfigObject("oreQuartz", dimension("Nether", 14, 16, 10, 117)));
+				list.put("oreGold", dimension("Overworld", 9, 2, 0, 31));
+				list.put("oreIron", dimension("Overworld", 9, 20, 0, 63));
+				list.put("oreCoal", dimension("Overworld", 17, 20, 0, 127));
+				list.put("oreLapis", dimension("Overworld", Arrays.asList("Max Vein Size: 7", "Attempts per Chunk: 1",
+						"Y-Level: 0 to 30", "This Ore is normally distributed!")));
+				list.put("oreDiamond", dimension("Overworld", 8, 1, 0, 15));
+				list.put("oreRedstone", dimension("Overworld", 8, 8, 0, 15));
+				list.put("oreEmerald", dimension("Overworld", Arrays.asList("Max Vein Size: 1",
+						"Attempts per Chunk: 3 to 9", "Y-Level: 4 - 31", "This Ore generates only in Hills!")));
+				list.put("oreQuartz", dimension("Nether", 14, 16, 10, 117));
 
-				ConfigHolder holder = new ConfigHolder();
-				holder.config = list;
-				
+				ConfigObject holder = new ConfigObject();
+				holder.ores = list;
+
 				BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));
 				writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(holder));
 				writer.close();
 			}
 
-			config = new Gson().fromJson(readFile(configFile.getPath()), ConfigHolder.class).config;
+			config = new Gson().fromJson(readFile(configFile.getPath()), ConfigObject.class).ores;
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void collectPossibleItems() {
+		for (String ore : config.keySet()) {
+			if (ore.startsWith("[")) {
+				for (String item : ore.substring(1).split(";")) {
+					possibleItems.put(WATO.getUSIID(WATO.findItem(item)), ore);
+				}
+			} else {
+				for (ItemStack stack : OreDictionary.getOres(ore)) {
+					possibleItems.put(WATO.getUSIID(stack), ore);
+				}
+			}
+		}
+		WATO.logger.info("Added Information for " + possibleItems.size() + " Ores!");
 	}
 
 	private static Map<String, List<String>> dimension(String dim, List<String> info) {
