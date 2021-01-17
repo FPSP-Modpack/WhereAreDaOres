@@ -45,7 +45,9 @@ public class WATORecipeHandler extends TemplateRecipeHandler {
 				} else {
 					decodedOres = OreDictionary.getOres(ore);
 				}
-				this.arecipes.add(new CachedOreRecipe(dimensionInfo, decodedOres));
+				if (decodedOres.size() > 0) {
+					this.arecipes.add(new CachedOreRecipe(dimensionInfo, decodedOres));
+				}
 			}
 		} else {
 			super.loadCraftingRecipes(outputId, results);
@@ -66,8 +68,9 @@ public class WATORecipeHandler extends TemplateRecipeHandler {
 			} else {
 				decodedOres = OreDictionary.getOres(key);
 			}
-
-			this.arecipes.add(new CachedOreRecipe(ConfigHandler.config.get(key), decodedOres));
+			if (decodedOres.size() > 0) {
+				this.arecipes.add(new CachedOreRecipe(ConfigHandler.config.get(key), decodedOres));
+			}
 		} else {
 			super.loadCraftingRecipes(result);
 		}
