@@ -60,8 +60,7 @@ public class WATORecipeHandler extends TemplateRecipeHandler {
 			// decode ore:
 			List<ItemStack> decodedOres = new ArrayList<ItemStack>();
 			if (key.startsWith("[")) {
-				key.replaceFirst("[", "");
-				for (String item : key.split(";")) {
+				for (String item : key.substring(1).split(";")) {
 					decodedOres.add(WATO.findItem(item));
 				}
 			} else {
