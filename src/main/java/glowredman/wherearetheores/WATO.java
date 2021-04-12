@@ -9,6 +9,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
+import glowredman.wherearetheores.config.ConfigHandler;
 import glowredman.wherearetheores.proxy.CommonProxy;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -49,34 +50,76 @@ public class WATO {
 	 * "IC2:dust", "IC2:dust:4".
 	 */
 	public static ItemStack findItem(String item) {
+		ItemStack ret;
 		String[] parts = item.split(":");
 		switch (parts.length) {
 
 		// The item is from minecraft and has no meta value.
 		case 1:
-			return GameRegistry.findItemStack("minecraft", item, 1);
+			ret = GameRegistry.findItemStack("minecraft", item, 1);
+			break;
 		case 2:
 
 			// The item is from Minecraft and has a meta value.
 			try {
 				ItemStack stack = GameRegistry.findItemStack("minecraft", parts[0], 1);
-				Items.apple.setDamage(stack, Integer.parseInt(parts[1]));
-				return stack;
+				if (stack == null) {
+					ret = null;
+				} else {
+					Items.apple.setDamage(stack, Integer.parseInt(parts[1]));
+					ret = stack;
+				}
 
 				// The item is not from Minecraft and has no meta value.
 			} catch (Exception e) {
-				return GameRegistry.findItemStack(parts[0], parts[1], 1);
+				ret = GameRegistry.findItemStack(parts[0], parts[1], 1);
 			}
+			break;
 
 			// The item is not from Minecraft and has a meta value.
 		case 3:
 			ItemStack stack = GameRegistry.findItemStack(parts[0], parts[1], 1);
-			Items.apple.setDamage(stack, Integer.parseInt(parts[2]));
-			return stack;
+			if (stack == null) {
+				ret = null;
+			} else {
+				Items.apple.setDamage(stack, Integer.parseInt(parts[2]));
+				ret = stack;
+			}
+			break;
 		default:
-			WATO.logger.error("Unable to translate \"" + item + "\" to an ItemStack!");
-			return null;
+			ret = null;
 		}
+		if (ret == null)
+			error("Unable to translate \"" + item + "\" to an ItemStack!");
+		return ret;
+	}
+
+	public static void fatal(String message) {
+		logger.fatal(message);
+	}
+
+	public static void error(String message) {
+		logger.error(message);
+	}
+
+	public static void warn(String message) {
+		logger.warn(message);
+	}
+
+	public static void info(String message) {
+		logger.info(message);
+	}
+
+	public static void debug(String message) {
+		if (ConfigHandler.enableDebug) {
+			logger.info(message);
+		} else {
+			logger.debug(message);
+		}
+	}
+
+	public static void trace(String message) {
+		logger.trace(message);
 	}
 
 	public static long getUSIID(ItemStack stack) {

@@ -6,6 +6,7 @@ import java.util.Map;
 
 public class ConfigObject {
 	
+	public boolean showDebug;
 	public Map<String, Map<String, List<String>>> ores = new HashMap<String, Map<String,List<String>>>();
 
 }

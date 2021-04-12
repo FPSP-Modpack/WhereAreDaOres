@@ -23,6 +23,7 @@ import net.minecraftforge.oredict.OreDictionary;
 public class ConfigHandler {
 
 	public static File configFile;
+	public static boolean enableDebug;
 	public static Map<String, Map<String, List<String>>> config = new HashMap<String, Map<String, List<String>>>();
 	public static Map<Long, String> possibleItems = new HashMap<Long, String>();
 
@@ -43,15 +44,18 @@ public class ConfigHandler {
 						"Attempts per Chunk: 3 to 9", "Y-Level: 4 - 31", "This Ore generates only in Hills!")));
 				list.put("oreQuartz", dimension("Nether", 14, 16, 10, 117));
 
-				ConfigObject holder = new ConfigObject();
-				holder.ores = list;
+				ConfigObject obj = new ConfigObject();
+				obj.showDebug = false;
+				obj.ores = list;
 
 				BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));
-				writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(holder));
+				writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(obj));
 				writer.close();
 			}
 
-			config = new Gson().fromJson(readFile(configFile.getPath()), ConfigObject.class).ores;
+			ConfigObject configObj = new Gson().fromJson(readFile(configFile.getPath()), ConfigObject.class);
+			config = configObj.ores;
+			enableDebug = configObj.showDebug;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -59,18 +63,36 @@ public class ConfigHandler {
 	}
 
 	public static void collectPossibleItems() {
+		WATO.info("Adding Information for Ores...");
 		for (String ore : config.keySet()) {
 			if (ore.startsWith("[")) {
+				WATO.debug(" USIIDs for Item-Key \"" + ore + "\":");
 				for (String item : ore.substring(1).split(";")) {
-					possibleItems.put(WATO.getUSIID(WATO.findItem(item)), ore);
+					ItemStack itemStack = WATO.findItem(item);
+					if (itemStack == null)
+						continue;
+					long usiid = WATO.getUSIID(itemStack);
+					WATO.debug("   " + item + " -> " + usiid);
+					String before = possibleItems.put(usiid, ore);
+					if (before != null) {
+						WATO.error("The USIID " + usiid + " (previously assosiated with Entry \"" + before
+								+ "\") has been overridden and is now associated with entry \"" + ore + "\"!");
+					}
 				}
 			} else {
+				WATO.debug(" USIIDs for OreDict-Key \"" + ore + "\":");
 				for (ItemStack stack : OreDictionary.getOres(ore)) {
-					possibleItems.put(WATO.getUSIID(stack), ore);
+					long usiid = WATO.getUSIID(stack);
+					WATO.debug("   " + stack.toString().substring(2) + " -> " + usiid);
+					String before = possibleItems.put(usiid, ore);
+					if (before != null) {
+						WATO.error("The USIID " + usiid + " (previously assosiated with Entry \"" + before
+								+ "\") has been overridden and is now associated with entry \"" + ore + "\"!");
+					}
 				}
 			}
 		}
-		WATO.logger.info("Added Information for " + possibleItems.size() + " Ores!");
+		WATO.info("Added Information for " + possibleItems.size() + " Ores!");
 	}
 
 	private static Map<String, List<String>> dimension(String dim, List<String> info) {

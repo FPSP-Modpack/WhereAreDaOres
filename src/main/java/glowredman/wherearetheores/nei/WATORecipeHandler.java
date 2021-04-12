@@ -127,7 +127,7 @@ public class WATORecipeHandler extends TemplateRecipeHandler {
 	/**
 	 * Draws a tooltip with details about the dimension the mouse is hovering over.
 	 */
-	public void drawTooltip(CachedOreRecipe recipe) {
+	private void drawTooltip(CachedOreRecipe recipe) {
 		Point mouse = GuiDraw.getMousePosition();
 		Point mouseRel = new Point(mouse.x - getXOffset(), mouse.y - getYOffset());
 
