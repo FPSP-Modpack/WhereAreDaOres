@@ -51,12 +51,14 @@ public class WATO {
 	 */
 	public static ItemStack findItem(String item) {
 		ItemStack ret;
+		String error = "";
 		String[] parts = item.split(":");
 		switch (parts.length) {
 
 		// The item is from minecraft and has no meta value.
 		case 1:
 			ret = GameRegistry.findItemStack("minecraft", item, 1);
+			error = "Assumed Vanilla Item without Meta (like \"apple\")";
 			break;
 		case 2:
 
@@ -64,14 +66,16 @@ public class WATO {
 			try {
 				ret = GameRegistry.findItemStack("minecraft", parts[0], 1);
 				Items.apple.setDamage(ret, Integer.parseInt(parts[1]));
+				error = "Assumed Vanilla Item with Meta (like \"coal:1\")";
 
 				// The item is not from Minecraft and has no meta value.
 			} catch (Exception e) {
 				ret = GameRegistry.findItemStack(parts[0], parts[1], 1);
+				error = "Assumed namespaced Item without Meta (like \"IC2:dust\")";
 			}
 			break;
 
-			// The item is not from Minecraft and has a meta value.
+		// The item is not from Minecraft and has a meta value.
 		case 3:
 			ItemStack stack = GameRegistry.findItemStack(parts[0], parts[1], 1);
 			if (stack == null) {
@@ -80,12 +84,13 @@ public class WATO {
 				Items.apple.setDamage(stack, Integer.parseInt(parts[2]));
 				ret = stack;
 			}
+			error = "Assumed namespaced Item with Meta (like \"IC2:dust:4\")";
 			break;
 		default:
 			ret = null;
 		}
 		if (ret == null)
-			error("Unable to translate \"" + item + "\" to an ItemStack!");
+			error("Unable to translate \"" + item + "\" to an ItemStack! " + error);
 		return ret;
 	}
 
