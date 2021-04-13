@@ -41,7 +41,7 @@ public class ConfigHandler {
 				list.put("oreDiamond", dimension("Overworld", 8, 1, 0, 15));
 				list.put("oreRedstone", dimension("Overworld", 8, 8, 0, 15));
 				list.put("oreEmerald", dimension("Overworld", Arrays.asList("Max Vein Size: 1",
-						"Attempts per Chunk: 3 to 9", "Y-Level: 4 - 31", "This Ore generates only in Hills!")));
+						"Attempts per Chunk: 3 to 9", "Y-Level: 4 to 31", "This Ore generates only in Hills!")));
 				list.put("oreQuartz", dimension("Nether", 14, 16, 10, 117));
 
 				ConfigObject obj = new ConfigObject();
