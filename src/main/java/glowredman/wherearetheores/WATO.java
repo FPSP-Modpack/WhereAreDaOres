@@ -62,13 +62,8 @@ public class WATO {
 
 			// The item is from Minecraft and has a meta value.
 			try {
-				ItemStack stack = GameRegistry.findItemStack("minecraft", parts[0], 1);
-				if (stack == null) {
-					ret = null;
-				} else {
-					Items.apple.setDamage(stack, Integer.parseInt(parts[1]));
-					ret = stack;
-				}
+				ret = GameRegistry.findItemStack("minecraft", parts[0], 1);
+				Items.apple.setDamage(ret, Integer.parseInt(parts[1]));
 
 				// The item is not from Minecraft and has no meta value.
 			} catch (Exception e) {
