@@ -9,10 +9,10 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 import glowredman.wherearetheores.config.ConfigHandler;
 import glowredman.wherearetheores.proxy.CommonProxy;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 @Mod(acceptedMinecraftVersions = "1.7.10", dependencies = "required-after:NotEnoughItems", modid = WATO.MODID, name = WATO.MODNAME, version = WATO.VERSION)
@@ -94,6 +94,11 @@ public class WATO {
 		return ret;
 	}
 
+	public static String getStackName(ItemStack stack) {
+		UniqueIdentifier identifier = GameRegistry.findUniqueIdentifierFor(stack.getItem());
+		return identifier.modId + ":" + identifier.name + ":" + stack.getItemDamage();
+	}
+
 	public static void fatal(String message) {
 		logger.fatal(message);
 	}
@@ -120,14 +125,6 @@ public class WATO {
 
 	public static void trace(String message) {
 		logger.trace(message);
-	}
-
-	public static long getUSIID(ItemStack stack) {
-		return getUSIID(Item.getIdFromItem(stack.getItem()), stack.getItemDamage());
-	}
-
-	public static long getUSIID(int itemID, int meta) {
-		return itemID * Short.MAX_VALUE + meta;
 	}
 
 }

@@ -25,7 +25,7 @@ public class ConfigHandler {
 	public static File configFile;
 	public static boolean enableDebug;
 	public static Map<String, Map<String, List<String>>> config = new HashMap<String, Map<String, List<String>>>();
-	public static Map<Long, String> possibleItems = new HashMap<Long, String>();
+	public static Map<String, String> possibleItems = new HashMap<String, String>();
 
 	public static void init(FMLPreInitializationEvent event) {
 		try {
@@ -63,36 +63,40 @@ public class ConfigHandler {
 	}
 
 	public static void collectPossibleItems() {
-		WATO.info("Adding Information for Ores...");
+		WATO.info("[WATO] Adding Information for Ores...");
+
 		for (String ore : config.keySet()) {
+
+			// The Entry is an Item (List)
 			if (ore.startsWith("[")) {
-				WATO.debug(" USIIDs for Item-Key \"" + ore + "\":");
+				WATO.debug(" Identifier(s) for Item-Key \"" + ore + "\":");
 				for (String item : ore.substring(1).split(";")) {
 					ItemStack itemStack = WATO.findItem(item);
 					if (itemStack == null)
 						continue;
-					long usiid = WATO.getUSIID(itemStack);
-					WATO.debug("   " + item + " -> " + usiid);
-					String before = possibleItems.put(usiid, ore);
-					if (before != null) {
-						WATO.error("The USIID " + usiid + " (previously assosiated with Entry \"" + before
-								+ "\") has been overridden and is now associated with entry \"" + ore + "\"!");
-					}
+					String identifier = WATO.getStackName(itemStack);
+					WATO.debug("   " + identifier);
+					String before = possibleItems.put(identifier, ore);
+					if (before != null)
+						WATO.error("[WATO] The Identifier " + identifier + " (previously associated with Entry \""
+								+ before + "\" has been overridden and is now associated with Entry \"" + ore + "\"!");
 				}
+
+				// The Entry is an OreDict Entry
 			} else {
-				WATO.debug(" USIIDs for OreDict-Key \"" + ore + "\":");
+				WATO.debug(" Identifier(s) for OreDict-Key \"" + ore + "\":");
 				for (ItemStack stack : OreDictionary.getOres(ore)) {
-					long usiid = WATO.getUSIID(stack);
-					WATO.debug("   " + stack.toString().substring(2) + " -> " + usiid);
-					String before = possibleItems.put(usiid, ore);
+					String identifier = WATO.getStackName(stack);
+					WATO.debug("   " + identifier);
+					String before = possibleItems.put(identifier, ore);
 					if (before != null) {
-						WATO.error("The USIID " + usiid + " (previously assosiated with Entry \"" + before
-								+ "\") has been overridden and is now associated with entry \"" + ore + "\"!");
+						WATO.error("[WATO] The Identifier " + identifier + " (previously associated with Entry \""
+								+ before + "\" has been overridden and is now associated with Entry \"" + ore + "\"!");
 					}
 				}
 			}
 		}
-		WATO.info("Added Information for " + possibleItems.size() + " Ores!");
+		WATO.info("[WATO] Added Information for " + possibleItems.size() + " Ores!");
 	}
 
 	private static Map<String, List<String>> dimension(String dim, List<String> info) {

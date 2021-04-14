@@ -56,8 +56,8 @@ public class WATORecipeHandler extends TemplateRecipeHandler {
 
 	@Override
 	public void loadCraftingRecipes(ItemStack result) {
-		if (ConfigHandler.possibleItems.containsKey(WATO.getUSIID(result))) {
-			String key = ConfigHandler.possibleItems.get(WATO.getUSIID(result));
+		String key = ConfigHandler.possibleItems.get(WATO.getStackName(result));
+		if (key != null) {
 
 			// decode ore:
 			List<ItemStack> decodedOres = new ArrayList<ItemStack>();
