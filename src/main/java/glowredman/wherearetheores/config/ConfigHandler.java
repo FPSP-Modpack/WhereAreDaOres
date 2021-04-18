@@ -46,6 +46,10 @@ public class ConfigHandler {
 
 				ConfigObject obj = new ConfigObject();
 				obj.showDebug = false;
+				obj.textOffset = 20;
+				obj.lineHeight = 9;
+				obj.tooltipOffsetX = 8;
+				obj.tooltipOffsetY = -12;
 				obj.ores = list;
 
 				BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));
