@@ -17,6 +17,7 @@ import com.google.gson.GsonBuilder;
 
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import glowredman.wherearetheores.WATO;
+import glowredman.wherearetheores.nei.WATORecipeHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -60,6 +61,10 @@ public class ConfigHandler {
 			ConfigObject configObj = new Gson().fromJson(readFile(configFile.getPath()), ConfigObject.class);
 			config = configObj.ores;
 			enableDebug = configObj.showDebug;
+			WATORecipeHandler.lineHeight = configObj.lineHeight;
+			WATORecipeHandler.textOffset = configObj.textOffset;
+			WATORecipeHandler.tooltipOffsetX = configObj.tooltipOffsetX;
+			WATORecipeHandler.tooltipOffsetY = configObj.tooltipOffsetY;
 
 		} catch (Exception e) {
 			e.printStackTrace();
