@@ -30,9 +30,12 @@ public class WATO {
 
 	public static Logger logger;
 
+	public static boolean largeNEI;
+
 	@EventHandler
 	public static void preInit(FMLPreInitializationEvent event) {
 		logger = event.getModLog();
+		detectLargeNEI();
 		proxy.preInit(event);
 	}
 
@@ -92,6 +95,16 @@ public class WATO {
 		if (ret == null)
 			error("Unable to translate \"" + item + "\" to an ItemStack! " + error);
 		return ret;
+	}
+
+	public static void detectLargeNEI() {
+		try {
+			Class.forName("codechicken.nei.recipe.GuiRecipeTab");
+			largeNEI = true;
+			info("[WATO] Large NEI Pages found!");
+		} catch (Exception e) {
+			largeNEI = false;
+		}
 	}
 
 	public static String getStackName(ItemStack stack) {

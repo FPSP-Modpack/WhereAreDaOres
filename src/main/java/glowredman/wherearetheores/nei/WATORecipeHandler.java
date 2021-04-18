@@ -14,6 +14,7 @@ import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 import glowredman.wherearetheores.WATO;
 import glowredman.wherearetheores.config.ConfigHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -21,11 +22,12 @@ import net.minecraftforge.oredict.OreDictionary;
 
 public class WATORecipeHandler extends TemplateRecipeHandler {
 
-	public static final int WIDTH = 170;
+	public static final int WIDTH = 176;
 	public static final int HEIGHT = 160;
-	public static final int TEXT_OFFSET_X = 4;
-	public static final int TEXT_OFFSET_Y = 20;
-	public static final int TEXT_SPACING = 9;
+	public static int textOffset = 20;
+	public static int lineHeight = 9;
+	public static int tooltipOffsetX = 8;
+	public static int tooltipOffsetY = -12;
 	public static final String OUTPUT_ID = "wato.ore";
 
 	@Override
@@ -96,7 +98,7 @@ public class WATORecipeHandler extends TemplateRecipeHandler {
 		FontRenderer font = GuiDraw.fontRenderer;
 		for (int i = 0; i < dimensions.size(); i++) {
 			String dim = dimensions.get(i);
-			GuiDraw.drawString(dim, (WIDTH - font.getStringWidth(dim)) / 2, TEXT_OFFSET_Y + i * TEXT_SPACING, 0x404040,
+			GuiDraw.drawString(dim, (WIDTH - font.getStringWidth(dim)) / 2, textOffset + i * lineHeight, 0x404040,
 					false);
 		}
 		drawTooltip(cRecipe);
@@ -119,35 +121,52 @@ public class WATORecipeHandler extends TemplateRecipeHandler {
 
 	@Override
 	public void loadTransferRects() {
-		int stringLenght = GuiDraw.getStringWidth(I18n.format("gui.nei.wato"));
-		transferRects.add(new RecipeTransferRect(
-				new Rectangle((WIDTH - stringLenght + 1) / 2, -12, stringLenght + 2, 10), OUTPUT_ID));
+		if (WATO.largeNEI) {
+			transferRects.add(new RecipeTransferRect(new Rectangle(13, -29, 139, 26), OUTPUT_ID));
+		} else {
+			int stringLenght = GuiDraw.getStringWidth(I18n.format("gui.nei.wato"));
+			transferRects.add(new RecipeTransferRect(
+					new Rectangle((WIDTH - stringLenght + 1) / 2, -12, stringLenght + 2, 10), OUTPUT_ID));
+		}
 	}
 
 	/**
 	 * Draws a tooltip with details about the dimension the mouse is hovering over.
 	 */
 	private void drawTooltip(CachedOreRecipe recipe) {
-		Point mouse = GuiDraw.getMousePosition();
-		Point mouseRel = new Point(mouse.x - getXOffset(), mouse.y - getYOffset());
 
-		// Check, if the mouse is inside the GUI (horizontally)
-		if (mouseRel.x <= WIDTH && mouseRel.x >= 0) {
+		// Get mouse position relative to
+		Point mouseScreen = GuiDraw.getMousePosition();
+		Point mouseGUI = new Point(mouseScreen.x - getXOffset(), mouseScreen.y - getYOffset());
 
-			// Get the line, the mouse is hovering over
-			int line = (int) Math.floor((mouseRel.y - TEXT_OFFSET_Y) / TEXT_SPACING);
+		// Exit if the mouse is not inside the text area (horizontally)
+		if (mouseGUI.x >= WIDTH || mouseGUI.x < 0)
+			return;
 
-			// Check, if the mouse position is inside the text area (vertically)
-			if (line < recipe.dimensionInfo.size() && line >= 0) {
-				String dim = (String) recipe.dimensionInfo.keySet().toArray()[line];
+		// Get number of lines in the text area
+		int toolTipSize = recipe.dimensionInfo.size();
 
-				// Don't draw the tooltip, if it wouldn't contain text
-				if (recipe.dimensionInfo.get(dim).size() > 0) {
-					GuiDraw.drawMultilineTip(mouseRel.x + 8, mouseRel.y - TEXT_OFFSET_Y + 32,
-							recipe.dimensionInfo.get(dim));
-				}
-			}
-		}
+		// Exit if there is nothing to be displayed
+		if (toolTipSize == 0)
+			return;
+
+		// Get the line, the mouse is hovering over
+		int dY = mouseGUI.y - textOffset;
+		int line = dY / lineHeight;
+
+		// Exit if the mouse is not inside the text area (vertically)
+		if (dY < 0 || line >= toolTipSize)
+			return;
+
+		// Get the dimension's info text
+		List<String> infoText = (List<String>) recipe.dimensionInfo.values().toArray()[line];
+
+		// Exit if the info text is empty
+		if (infoText.size() == 0)
+			return;
+
+		// Display the info text
+		GuiDraw.drawMultilineTip(mouseGUI.x + tooltipOffsetX, mouseGUI.y + tooltipOffsetY, infoText);
 	}
 
 	private int getXOffset() {
@@ -155,7 +174,13 @@ public class WATORecipeHandler extends TemplateRecipeHandler {
 	}
 
 	private int getYOffset() {
-		return (GuiDraw.displaySize().height - HEIGHT) / 2 + 13;
+		if (WATO.largeNEI) {
+			int guiHeight = Minecraft.getMinecraft().currentScreen.height;
+			int ySize = Math.min(Math.max(guiHeight - 68, 166), 370);
+			return (guiHeight - ySize) / 2 + 42;
+		} else {
+			return (GuiDraw.displaySize().height - HEIGHT) / 2 + 13;
+		}
 	}
 
 	public class CachedOreRecipe extends CachedRecipe {
