@@ -8,4 +8,6 @@ So what does this do? You can look up the recipe of any ore and see, in which di
 
 mitchej123's [updated NotEnoughItems](https://github.com/GTNewHorizons/NotEnoughItems) is supported.
 
-This mod is client-side only!
+**This mod is client-side only!**
+
+### Download: [CurseForge](https://www.curseforge.com/minecraft/mc-mods/where-are-the-ores/files) | [Modrinth](https://modrinth.com/mod/where-are-the-ores/versions)
