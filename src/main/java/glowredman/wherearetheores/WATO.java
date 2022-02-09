@@ -2,6 +2,7 @@ package glowredman.wherearetheores;
 
 import org.apache.logging.log4j.Logger;
 
+import codechicken.nei.NEIClientConfig;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -58,7 +59,7 @@ public class WATO {
 		String[] parts = item.split(":");
 		switch (parts.length) {
 
-		// The item is from minecraft and has no meta value.
+		// The item is from Minecraft and has no meta value.
 		case 1:
 			ret = GameRegistry.findItemStack("minecraft", item, 1);
 			error = "Assumed Vanilla Item without Meta (like \"apple\")";
@@ -99,12 +100,11 @@ public class WATO {
 
 	public static void detectLargeNEI() {
 		try {
-			Class.forName("codechicken.nei.recipe.GuiRecipeTab");
-			largeNEI = true;
-			info("[WATO] Large NEI Pages found!");
+			largeNEI = NEIClientConfig.areJEIStyleTabsVisible();
 		} catch (Exception e) {
 			largeNEI = false;
 		}
+		info("[WATO] Large NEI Pages: " + largeNEI);
 	}
 
 	public static String getStackName(ItemStack stack) {
